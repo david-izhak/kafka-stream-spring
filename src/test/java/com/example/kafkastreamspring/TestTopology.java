@@ -5,7 +5,6 @@ import com.example.kafkastreamspring.config.TopologyConfiguration;
 import com.example.kafkastreamspring.model.MessageOutput;
 import com.example.kafkastreamspring.model.MessageUserBalance;
 import com.example.kafkastreamspring.model.MessageUserState;
-import com.example.kafkastreamspring.model.UserState;
 import com.example.kafkastreamspring.util.StreamsSerdes;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.*;
@@ -15,19 +14,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.kafka.config.KafkaStreamsConfiguration;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import static com.example.kafkastreamspring.config.TopicNames.*;
-import static com.example.kafkastreamspring.model.UserState.*;
+import static com.example.kafkastreamspring.model.UserState.ACTIVE;
+import static com.example.kafkastreamspring.model.UserState.BLOCKED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestTopology {
 
-    private List<String> output = new ArrayList<>();
     private TestInputTopic<String, MessageUserState> userStateTestInputTopic;
     private TestInputTopic<String, MessageUserBalance> userBalanceTestInputTopic;
     private TestOutputTopic<String, MessageOutput> outputTopic;
@@ -37,7 +34,7 @@ public class TestTopology {
     public void setUp() {
         KafkaStreamsConfiguration config = new KafkaConfiguration().getStreamsConfig();
         StreamsBuilder sb = new StreamsBuilder();
-        Topology topology = new TopologyConfiguration(output::add).createTopology(sb);
+        Topology topology = new TopologyConfiguration().createTopology(sb);
         topologyTestDriver = new TopologyTestDriver(topology, config.asProperties());
         userStateTestInputTopic = topologyTestDriver.createInputTopic(USER_STATE_TOPIC, Serdes.String().serializer(),
                         StreamsSerdes.messageUserStateSerde().serializer());
@@ -221,8 +218,8 @@ public class TestTopology {
         userBalanceTestInputTopic.pipeInput(userBalanceMessage2.getUserId(), userBalanceMessage2);
 
         //Reading from uninitialized topic generate Exception
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> {
-            outputTopic.readValue();
-        }).withMessage("Uninitialized topic: %s", USER_COMBINED_VALUES_TOPIC);
+        assertThatExceptionOfType(NoSuchElementException.class)
+                .isThrownBy(outputTopic::readValue)
+                .withMessage("Uninitialized topic: %s", USER_COMBINED_VALUES_TOPIC);
     }
 }
