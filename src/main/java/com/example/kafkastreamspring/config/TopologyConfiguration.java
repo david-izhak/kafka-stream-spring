@@ -13,9 +13,8 @@ import org.apache.kafka.streams.kstream.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.function.Consumer;
-
-import static com.example.kafkastreamspring.config.StoreNames.*;
+import static com.example.kafkastreamspring.config.StoreNames.USER_BALANCE_STORE;
+import static com.example.kafkastreamspring.config.StoreNames.USER_STATE_STORE;
 import static com.example.kafkastreamspring.config.TopicNames.*;
 
 @Configuration
@@ -23,7 +22,6 @@ import static com.example.kafkastreamspring.config.TopicNames.*;
 @Slf4j
 public class TopologyConfiguration {
 
-    private final Consumer<String> out;
 
     @Bean
     public Topology createTopology(StreamsBuilder streamsBuilder) {
