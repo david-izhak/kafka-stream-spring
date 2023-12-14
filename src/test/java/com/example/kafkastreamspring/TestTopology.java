@@ -8,9 +8,7 @@ import com.example.kafkastreamspring.model.MessageUserState;
 import com.example.kafkastreamspring.util.StreamsSerdes;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.*;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.kafka.config.KafkaStreamsConfiguration;
 
 import java.time.Instant;
@@ -23,6 +21,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@DisplayName("Test topology")
+@Tag("topology")
 public class TestTopology {
 
     private TestInputTopic<String, MessageUserState> userStateTestInputTopic;
@@ -58,6 +59,9 @@ public class TestTopology {
     }
 
     @Test
+    @Order(1)
+    @DisplayName("Test topology with one message for each input topic")
+    @Tag("message")
     void testTopology() {
         //arrange
 
@@ -88,6 +92,8 @@ public class TestTopology {
     }
 
     @Test
+    @Order(2)
+    @DisplayName("Test topology with two messages for each input topic")
     void testTopologyTwoOutputMessages() {
         //arrange
 
@@ -117,7 +123,6 @@ public class TestTopology {
         //act
         userStateTestInputTopic.pipeInput(messageUserState1.getUserId(), messageUserState1);
         userStateTestInputTopic.pipeInput(messageUserState2.getUserId(), messageUserState2);
-//        userStateTestInputTopic.pipeInput(messageUserState3.getUserId(), messageUserState3);
 
         userBalanceTestInputTopic.pipeInput(messageUserBalance1.getUserId(), messageUserBalance1);
         userBalanceTestInputTopic.pipeInput(messageUserBalance2.getUserId(), messageUserBalance2);
@@ -136,6 +141,8 @@ public class TestTopology {
     }
 
     @Test
+    @Order(3)
+    @DisplayName("Test topology with two messages for each input topic and one ignored message with user state")
     void testTopologyTwoOutputMessagesAndIgnoredUser() {
         //arrange
         MessageUserState messageUserState1 = MessageUserState.builder()
@@ -188,6 +195,8 @@ public class TestTopology {
     }
 
     @Test
+    @Order(4)
+    @DisplayName("Test topology with two messages for each input topic but different users")
     void testReadFromEmptyTopic() {
         MessageUserState userStateMessage1 = MessageUserState.builder()
                 .userId("abc")
